@@ -11,8 +11,8 @@ import { useState } from 'react';
 import Home from './pages/Home';
 import Projects from './pages/Projects';
 import Certificates from './pages/Certificates';
-import Profile from './pages/Profile';
 import Contact from './pages/Contact';
+
 import SkillsPage from './pages/SkillsPage';
 
 // Admin Pages
@@ -44,8 +44,9 @@ function App() {
               <Route path="/projects" element={<Projects />} />
               <Route path="/certificates" element={<Certificates />} />
               <Route path="/skills" element={<SkillsPage />} />
-              <Route path="/profile" element={<Profile />} />
               <Route path="/contact" element={<Contact />} />
+              <Route path="/profile" element={<Navigate to="/" replace />} />
+
             </Route>
 
             {/* Standalone Route for Admin Login */}

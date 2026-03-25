@@ -1,5 +1,5 @@
 import jwt from 'jsonwebtoken';
-import User from '../models/User.js';
+import * as jsonDb from '../utils/jsonDb.js';
 
 export const protect = async (req, res, next) => {
   let token;
@@ -9,9 +9,15 @@ export const protect = async (req, res, next) => {
   if (!token) return res.status(401).json({ message: 'Not authorized, no token' });
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = await User.findById(decoded.id).select('-password');
+    const user = await jsonDb.findOne('users', { _id: decoded.id });
+    if (!user) return res.status(401).json({ message: 'Not authorized, user not found' });
+    
+    // Remove password
+    const { password, ...userWithoutPassword } = user;
+    req.user = userWithoutPassword;
     next();
   } catch (err) {
     res.status(401).json({ message: 'Not authorized, token failed' });
   }
 };
+

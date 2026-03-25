@@ -1,10 +1,10 @@
-import Profile from '../models/Profile.js';
+import * as jsonDb from '../utils/jsonDb.js';
 
 export const getProfile = async (req, res) => {
   try {
-    let profile = await Profile.findOne();
+    let profile = await jsonDb.findOne('profile');
     if (!profile) {
-      profile = await Profile.create({});
+      profile = await jsonDb.create('profile', {});
     }
     res.json(profile);
   } catch (err) { res.status(500).json({ message: err.message }); }
@@ -26,28 +26,32 @@ export const updateProfile = async (req, res) => {
       return val;
     };
 
-    let profile = await Profile.findOne();
+    let profile = await jsonDb.findOne('profile');
+    const updateData = {
+      name: name || profile?.name || 'Sahil',
+      role: role || profile?.role || 'Full Stack Developer',
+      bio: bio ?? profile?.bio ?? '',
+      about: about ?? profile?.about ?? '',
+      email: email ?? profile?.email ?? '',
+      phone: phone ?? profile?.phone ?? '',
+      location: location ?? profile?.location ?? '',
+      github: github ?? profile?.github ?? '',
+      linkedin: linkedin ?? profile?.linkedin ?? '',
+      twitter: twitter ?? profile?.twitter ?? '',
+      website: website ?? profile?.website ?? '',
+      avatar: avatar || profile?.avatar || '',
+      cvFile: cvFile || profile?.cvFile || '',
+      skills: parseJSON(skills, profile?.skills),
+      experience: parseJSON(experience, profile?.experience),
+      education: parseJSON(education, profile?.education)
+    };
+
     if (!profile) {
-      profile = await Profile.create({ name, role, bio, about, email, phone, location, github, linkedin, twitter, website, avatar, cvFile, skills: parseJSON(skills), experience: parseJSON(experience), education: parseJSON(education) });
+      profile = await jsonDb.create('profile', updateData);
     } else {
-      profile.name = name || profile.name;
-      profile.role = role || profile.role;
-      profile.bio = bio ?? profile.bio;
-      profile.about = about ?? profile.about;
-      profile.email = email ?? profile.email;
-      profile.phone = phone ?? profile.phone;
-      profile.location = location ?? profile.location;
-      profile.github = github ?? profile.github;
-      profile.linkedin = linkedin ?? profile.linkedin;
-      profile.twitter = twitter ?? profile.twitter;
-      profile.website = website ?? profile.website;
-      if (avatar) profile.avatar = avatar;
-      if (cvFile) profile.cvFile = cvFile;
-      if (skills) profile.skills = parseJSON(skills);
-      if (experience) profile.experience = parseJSON(experience);
-      if (education) profile.education = parseJSON(education);
-      await profile.save();
+      profile = await jsonDb.findOneAndUpdate('profile', { _id: profile._id }, updateData);
     }
     res.json(profile);
   } catch (err) { res.status(400).json({ message: err.message }); }
 };
+

@@ -1,24 +1,30 @@
 import 'dotenv/config';
-import connectDB from './config/db.js';
-import User from './models/User.js';
-import Profile from './models/Profile.js';
+import fs from 'fs/promises';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import * as jsonDb from './utils/jsonDb.js';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const DATA_DIR = path.join(__dirname, '../data');
 
 const seed = async () => {
-  await connectDB();
+
+  console.log('🌱 Starting seeding process...');
 
   // Create admin user
-  const existingUser = await User.findOne({ username: 'admin' });
+  const existingUser = await jsonDb.findOne('users', { username: 'admin' });
   if (!existingUser) {
-    await User.create({ username: 'admin', password: 'admin123' });
+    await jsonDb.create('users', { username: 'admin', password: 'admin123' });
     console.log('✅ Admin user created (username: admin, password: admin123)');
   } else {
+
     console.log('ℹ️  Admin user already exists');
   }
 
   // Create default profile
-  const existingProfile = await Profile.findOne();
+  const existingProfile = await jsonDb.findOne('profile');
   if (!existingProfile) {
-    await Profile.create({
+    await jsonDb.create('profile', {
       name: 'Sahil',
       role: 'Full Stack Developer',
       bio: 'Passionate developer building premium digital experiences.',
@@ -60,8 +66,27 @@ const seed = async () => {
     console.log('✅ Default profile created');
   }
 
+  // Ensure other collections exist
+  const collections = ['projects', 'certificates', 'services', 'testimonials', 'skills', 'contact'];
+  for (const col of collections) {
+    const filePath = path.join(DATA_DIR, `${col}.json`);
+    try {
+      await fs.access(filePath);
+      const content = await fs.readFile(filePath, 'utf-8');
+      if (!content || content.trim() === '') {
+        await fs.writeFile(filePath, '[]', 'utf-8');
+        console.log(`✅ Initialized empty collection: ${col}`);
+      }
+    } catch {
+      await fs.writeFile(filePath, '[]', 'utf-8');
+      console.log(`✅ Created empty collection: ${col}`);
+    }
+  }
+
   console.log('🌱 Seeding complete!');
+
   process.exit(0);
 };
 
 seed().catch(err => { console.error(err); process.exit(1); });
+

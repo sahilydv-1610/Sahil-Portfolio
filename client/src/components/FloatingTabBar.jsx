@@ -10,7 +10,6 @@ const TABS = [
   { to: '/projects',     label: 'Projects',  Icon: FolderOpen },
   { to: '/certificates', label: 'Certs',     Icon: Award      },
   { to: '/skills',       label: 'Skills',    Icon: Brain      },
-  { to: '/profile',      label: 'Profile',   Icon: User       },
   { to: '/contact',      label: 'Contact',   Icon: Mail       },
 ];
 
