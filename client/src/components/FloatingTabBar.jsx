@@ -1,9 +1,11 @@
+import { useState, useEffect } from 'react';
 import { useLocation, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useTheme } from '../context/ThemeContext';
 import {
-  Home, FolderOpen, Award, User, Mail, Sun, Moon, Brain
+  Home, FolderOpen, Award, User, Mail, Sun, Moon, Brain, Github, Linkedin
 } from 'lucide-react';
+import { profileAPI } from '../services/api';
 
 const TABS = [
   { to: '/',             label: 'Home',      Icon: Home       },
@@ -16,6 +18,11 @@ const TABS = [
 export default function FloatingTabBar() {
   const { pathname } = useLocation();
   const { isDark, toggleTheme } = useTheme();
+  const [profile, setProfile] = useState(null);
+
+  useEffect(() => {
+    profileAPI.get().then(r => setProfile(r.data)).catch(console.error);
+  }, []);
 
   const activeIdx = TABS.findIndex(
     t => t.to === pathname || (t.to !== '/' && pathname.startsWith(t.to))
@@ -40,12 +47,12 @@ export default function FloatingTabBar() {
           alignItems: 'center', 
           padding: '8px', 
           gap: 6,
-          background: 'rgba(10, 10, 15, 0.65)',
+          background: 'var(--glass)',
           backdropFilter: 'blur(40px) saturate(2)',
           WebkitBackdropFilter: 'blur(40px) saturate(2)',
-          border: '1px solid rgba(255, 255, 255, 0.08)',
+          border: '1px solid var(--glass-border)',
           borderRadius: 28,
-          boxShadow: '0 20px 40px rgba(0,0,0,0.5), inset 0 1px 1px rgba(255,255,255,0.1)',
+          boxShadow: 'var(--glass-shadow), var(--glass-inner)',
         }}
       >
         {TABS.map((tab, idx) => {
@@ -116,6 +123,45 @@ export default function FloatingTabBar() {
             </Link>
           );
         })}
+
+        {/* Separator */}
+        <div style={{ width: 1, height: 28, background: 'var(--separator)', margin: '0 6px', borderRadius: 99, opacity: 0.6 }} />
+
+        {/* Social Links */}
+        {profile?.github && (
+          <a
+            href={profile.github}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{
+              padding: '10px',
+              borderRadius: '16px',
+              color: 'var(--text-muted)',
+              transition: 'all 0.2s ease',
+            }}
+            onMouseEnter={e => { e.currentTarget.style.color = 'var(--accent)'; e.currentTarget.style.background = 'rgba(255,255,255,0.05)'; }}
+            onMouseLeave={e => { e.currentTarget.style.color = 'var(--text-muted)'; e.currentTarget.style.background = 'transparent'; }}
+          >
+            <Github size={20} />
+          </a>
+        )}
+        {profile?.linkedin && (
+          <a
+            href={profile.linkedin}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{
+              padding: '10px',
+              borderRadius: '16px',
+              color: 'var(--text-muted)',
+              transition: 'all 0.2s ease',
+            }}
+            onMouseEnter={e => { e.currentTarget.style.color = 'var(--accent)'; e.currentTarget.style.background = 'rgba(255,255,255,0.05)'; }}
+            onMouseLeave={e => { e.currentTarget.style.color = 'var(--text-muted)'; e.currentTarget.style.background = 'transparent'; }}
+          >
+            <Linkedin size={20} />
+          </a>
+        )}
 
         {/* Separator */}
         <div style={{ width: 1, height: 28, background: 'var(--separator)', margin: '0 6px', borderRadius: 99, opacity: 0.6 }} />

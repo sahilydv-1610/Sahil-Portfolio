@@ -253,7 +253,7 @@ const Home = () => {
                   style={{ transform: 'scale(1.4) translateZ(-50px)' }}
                 />
                 <motion.div
-                  whileHover={{ rotateY: -15, rotateX: 10, scale: 1.05 }}
+                  whileHover={{ scale: 1.1 }}
                   transition={{ type: 'spring', stiffness: 300, damping: 20 }}
                   className="relative w-64 h-64 md:w-80 md:h-80 rounded-full overflow-hidden shadow-[0_20px_60px_rgba(0,0,0,0.6),inset_0_1px_1px_rgba(255,255,255,0.2)] bg-[var(--glass)] backdrop-blur-md"
                   style={{ border: '1px solid rgba(255,255,255,0.1)' }}
@@ -261,7 +261,7 @@ const Home = () => {
                   <LazyImage
                     src={profile?.avatar}
                     alt={profile?.name}
-                    className="w-full h-full object-cover mix-blend-luminosity hover:mix-blend-normal transition-all duration-700 scale-105 hover:scale-100"
+                    className="w-full h-full object-cover transition-all duration-700"
                     fallback={
                       <div className="w-full h-full flex items-center justify-center text-6xl font-extrabold gradient-text bg-gradient-to-br from-[var(--text-primary)]/10 to-white/5">
                         {profile?.name?.[0] || 'S'}

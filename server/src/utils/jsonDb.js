@@ -21,18 +21,22 @@ export const read = async (collection) => {
   try {
     const data = await fs.readFile(filePath, 'utf-8');
     if (!data || data.trim() === '') return [];
-    return JSON.parse(data);
+    try {
+      return JSON.parse(data);
+    } catch (parseErr) {
+      console.error(`❌ JSON Parse Error in collection "${collection}":`, parseErr.message);
+      return [];
+    }
   } catch (err) {
     if (err.code === 'ENOENT') return [];
     throw err;
   }
-
 };
 
 export const write = async (collection, data) => {
   await ensureDirectory();
   const filePath = getFilePath(collection);
-  await fs.writeFile(filePath, JSON.stringify(data, null, 2), 'utf-8');
+  await fs.writeFile(filePath, JSON.stringify(data), 'utf-8');
 };
 
 export const find = async (collection, query = {}) => {
@@ -126,18 +130,12 @@ export const findByIdAndDelete = async (collection, id) => {
   return deletedItem;
 };
 
-export const deleteMany = async (collection, query = {}) => {
+export const deleteMany = async (collection, query) => {
+  if (!query || Object.keys(query).length === 0) {
+    throw new Error('deleteMany requires a non-empty query. Use clearCollection() to clear all data explicitly.');
+  }
+
   const data = await read(collection);
-  const newData = data.filter(item => {
-    for (const key in query) {
-      if (item[key] !== query[key]) return false;
-    }
-    return false; // Keep it if it DOES NOT match query?
-    // Wait, deleteMany(query) deletes items that MATCH query.
-    // So filter should keep items that DO NOT match query.
-  });
-  
-  // Correction:
   const filteredData = data.filter(item => {
     let match = true;
     for (const key in query) {
@@ -151,4 +149,10 @@ export const deleteMany = async (collection, query = {}) => {
 
   await write(collection, filteredData);
   return { deletedCount: data.length - filteredData.length };
+};
+
+export const clearCollection = async (collection, confirm = false) => {
+  if (!confirm) throw new Error('Confirmation required to clear collection');
+  await write(collection, []);
+  return { message: `Collection ${collection} cleared` };
 };

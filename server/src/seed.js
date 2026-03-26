@@ -67,7 +67,7 @@ const seed = async () => {
   }
 
   // Ensure other collections exist
-  const collections = ['projects', 'certificates', 'services', 'testimonials', 'skills', 'contact'];
+  const collections = ['projects', 'certificates', 'services', 'testimonials', 'skills', 'messages'];
   for (const col of collections) {
     const filePath = path.join(DATA_DIR, `${col}.json`);
     try {
